@@ -46,7 +46,7 @@ void MainWindow::on_startSimulationButton_clicked()
     if( incomingRate <= 0 || serviceDuration <= 0 )
     {
         QMessageBox *msg = new QMessageBox( this );
-        msg->setText( "Invalid values entered for lambdas!" );
+        msg->setText( "Invalid values entered!" );
         msg->show();
         return;
     }
