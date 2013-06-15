@@ -24,3 +24,5 @@ HEADERS  += MainWindow.h \
     Event.h
 
 FORMS    += MainWindow.ui
+
+QMAKE_CXXFLAGS += -std=c++0x

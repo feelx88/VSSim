@@ -46,12 +46,13 @@ void MainWindow::on_startSimulationButton_clicked()
     if( incomingRate <= 0 || serviceDuration <= 0 )
     {
         QMessageBox *msg = new QMessageBox( this );
-        msg->setText( "Invalid values entered!" );
+        msg->setText( tr( "Invalid values entered!" ) );
         msg->show();
         return;
     }
 
     ui->progressBar->setValue( 0 );
+    ui->startSimulationButton->setText( tr( "Stop Simulation" ) );
 
     if( !mSimulator )
     {
@@ -75,15 +76,16 @@ void MainWindow::on_Simulator_finished()
         mSimulator->wait();
         mSimulator.reset();
     }
+    ui->startSimulationButton->setText( tr( "Start Simulation" ) );
 }
 
 void MainWindow::on_Simulator_updateValues( Simulator::SimulationData data )
 {
-    ui->simTime->setText( QString::number( data.simulationTime / 1000 ) );
+    ui->simTime->setText( QString::number( data.simulationTime / 1000 ) + " s" );
     ui->valueN->setText( QString::number( data.n ) );
     ui->valueT->setText( QString::number( data.t ) );
     ui->valueNQ->setText( QString::number( data.nq ) );
     ui->valueTQ->setText( QString::number( data.tq ) );
-    ui->progressBar->setValue( data.variance );
+    ui->progressBar->setValue( data.standardDerivation );
     ui->checkBox->setChecked( mSimulator ? !mSimulator->isRunning() : false );
 }

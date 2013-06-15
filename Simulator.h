@@ -26,7 +26,7 @@
 #include "Generator.h"
 #include "Event.h"
 
-typedef std::multimap<long, Event> EventMap;
+typedef std::multimap<unsigned long, Event> EventMap;
 
 class Simulator : public QThread
 {
@@ -38,6 +38,9 @@ public:
         unsigned long simulationTime, nextEventTime;
         int n, t, nq, tq;
         float variance, standardDerivation, minimalSD;
+        unsigned long nsum, tsum, nqsum, tqsum;
+        unsigned long nnum, tnum, nqnum, tqnum;
+        int curn, curt, curnq, curtq;
     };
 
     explicit Simulator( unsigned int incomingRate, unsigned int serviceDuration,
@@ -53,7 +56,7 @@ signals:
 
 private:
     Generator mIncomingRateGenerator, mServiceDurationGenerator;
-    bool mRunning;
+    bool mRunning, mFirstRun;
 
     QTimer mTimer;
 

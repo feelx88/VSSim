@@ -19,11 +19,13 @@
 
 #include "Simulator.h"
 #include <limits>
+#include <math.h>
 
 Simulator::Simulator( unsigned int incomingRate, unsigned int serviceDuration,
                       QObject *parent )
     : QThread( parent ),
-      mRunning( true )
+      mRunning( true ),
+      mFirstRun( true )
 {
     mIncomingRateGenerator.setValue( incomingRate );
     mServiceDurationGenerator.setValue( serviceDuration );
@@ -35,15 +37,61 @@ Simulator::Simulator( unsigned int incomingRate, unsigned int serviceDuration,
 
 void Simulator::run()
 {
+    unsigned long nextIncomingTime, nextFinishedTime;
+
+    //Initialize simulation: generate EET_INCOMING event
+    nextIncomingTime = mIncomingRateGenerator.generate();
+    mEvents.insert( std::make_pair( nextIncomingTime,
+                                    Event( Event::EET_INCOMING_EVENT, nextIncomingTime ) ) );
+    mEvents.insert( std::make_pair( 100, Event( Event::EET_MEASURE_EVENT, 100 ) ) );
+    mData.nextEventTime = nextIncomingTime;
+
     while( mRunning )
     {
-        mData.simulationTime++;
-        //Dummy code for gui testing
-        if( mIncomingRateGenerator.generate() > 1000 )
+        mData.simulationTime = mData.nextEventTime;
+
+        for( auto it : mEvents )
         {
-            mRunning = false;
+            if( it.first != mData.simulationTime )
+            {
+                break;
+            }
+
+            switch( it.second.getType() )
+            {
+            case Event::EET_INCOMING_EVENT:
+                nextIncomingTime = mData.simulationTime + mIncomingRateGenerator.generate();
+                nextFinishedTime = mData.simulationTime + mServiceDurationGenerator.generate();
+                mEvents.insert( std::make_pair( nextIncomingTime,
+                                                Event( Event::EET_INCOMING_EVENT, nextIncomingTime ) ) );
+                mEvents.insert( std::make_pair( nextFinishedTime,
+                                                Event( Event::EET_FINISHED_EVENT, nextFinishedTime ) ) );
+
+                mData.curn++;
+                break;
+
+            case Event::EET_FINISHED_EVENT:
+                mData.curn--;
+                break;
+
+            case Event::EET_MEASURE_EVENT:
+                mData.nnum++;
+                mData.nsum += mData.curn;
+                mData.n = (float)mData.nsum / (float)mData.nnum;
+
+                mEvents.insert( std::make_pair( mData.simulationTime + 100,
+                                                Event( Event::EET_MEASURE_EVENT, mData.simulationTime + 100 ) ) );
+                break;
+
+            default:
+                break;
+            }
         }
-        //End dummy code
+
+        mEvents.erase( mData.simulationTime );
+
+        mData.nextEventTime = mEvents.begin()->first;
+        mData.t = mData.curn;
     }
 
     mTimer.stop();
@@ -75,6 +123,9 @@ Simulator::SimulationData::SimulationData()
       tq( 0 ),
       variance( std::numeric_limits<float>::max() ),
       standardDerivation( std::numeric_limits<float>::max() ),
-      minimalSD( 0.000000001f )
+      minimalSD( 0.000000001f ),
+      nsum( 0 ), tsum( 0 ), nqsum( 0 ), tqsum( 0 ),
+      nnum( 0 ), tnum( 0 ), nqnum( 0 ), tqnum( 0 ),
+      curn( 0 ), curt( 0 ), curnq( 0 ), curtq( 0 )
 {
 }

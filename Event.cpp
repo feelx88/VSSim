@@ -19,7 +19,7 @@
 
 #include "Event.h"
 
-Event::Event( E_EVENT_TYPE type, long startTime )
+Event::Event( E_EVENT_TYPE type, unsigned long startTime )
     : mType( type ),
       mStartTime( startTime )
 {
@@ -30,7 +30,7 @@ Event::E_EVENT_TYPE Event::getType() const
     return mType;
 }
 
-long Event::getStartTime() const
+unsigned long Event::getStartTime() const
 {
     return mStartTime;
 }

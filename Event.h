@@ -30,14 +30,14 @@ public:
         EET_MEASURE_EVENT
     };
 
-    Event( E_EVENT_TYPE type, long startTime );
+    Event( E_EVENT_TYPE type, unsigned long startTime );
 
     E_EVENT_TYPE getType() const;
-    long getStartTime() const;
+    unsigned long getStartTime() const;
 
 private:
     E_EVENT_TYPE mType;
-    long mStartTime;
+    unsigned long mStartTime;
 };
 
 #endif // EVENT_H
