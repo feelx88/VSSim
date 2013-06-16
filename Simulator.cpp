@@ -43,7 +43,7 @@ void Simulator::run()
     nextIncomingTime = mIncomingRateGenerator.generate();
     mEvents.insert( std::make_pair( nextIncomingTime,
                                     Event( Event::EET_INCOMING_EVENT, nextIncomingTime ) ) );
-    mEvents.insert( std::make_pair( 100, Event( Event::EET_MEASURE_EVENT, 100 ) ) );
+    mEvents.insert( std::make_pair( 1000, Event( Event::EET_MEASURE_EVENT, 1000 ) ) );
     mData.nextEventTime = nextIncomingTime;
 
     while( mRunning )
@@ -68,10 +68,18 @@ void Simulator::run()
                                                 Event( Event::EET_FINISHED_EVENT, nextFinishedTime ) ) );
 
                 mData.curn++;
+
+                mData.nnum++;
+                mData.nsum += mData.curn;
+                mData.n = (float)mData.nsum / (float)mData.nnum;
                 break;
 
             case Event::EET_FINISHED_EVENT:
                 mData.curn--;
+
+                mData.nnum++;
+                mData.nsum += mData.curn;
+                mData.n = (float)mData.nsum / (float)mData.nnum;
                 break;
 
             case Event::EET_MEASURE_EVENT:
@@ -79,8 +87,8 @@ void Simulator::run()
                 mData.nsum += mData.curn;
                 mData.n = (float)mData.nsum / (float)mData.nnum;
 
-                mEvents.insert( std::make_pair( mData.simulationTime + 100,
-                                                Event( Event::EET_MEASURE_EVENT, mData.simulationTime + 100 ) ) );
+                mEvents.insert( std::make_pair( mData.simulationTime + 1000,
+                                                Event( Event::EET_MEASURE_EVENT, mData.simulationTime + 1000 ) ) );
                 break;
 
             default:
