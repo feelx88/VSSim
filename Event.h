@@ -20,6 +20,8 @@
 #ifndef EVENT_H
 #define EVENT_H
 
+#include <utility>
+
 class Event
 {
 public:
@@ -34,6 +36,9 @@ public:
 
     E_EVENT_TYPE getType() const;
     unsigned long getStartTime() const;
+
+    static std::pair<unsigned long, Event> makeEventPair( E_EVENT_TYPE type,
+                                                          unsigned long startTime );
 
 private:
     E_EVENT_TYPE mType;

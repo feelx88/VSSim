@@ -41,7 +41,7 @@ public:
 private slots:
     void on_startSimulationButton_clicked();
     void on_Simulator_finished();
-    void on_Simulator_updateValues( Simulator::SimulationData data );
+    void on_Simulator_updateValues( const Simulator::SimulationData &data );
 
 private:
     Ui::MainWindow *ui;

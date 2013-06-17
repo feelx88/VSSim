@@ -40,8 +40,12 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_startSimulationButton_clicked()
 {
+    unsigned int numServiceUnits = ui->serviceUnitsCount->value();
     unsigned int incomingRate = ui->incomingRate->text().toInt();
     unsigned int serviceDuration = ui->serviceRate->text().toInt();
+
+    bool enableMeasureEvents = ui->enableMeasureEvents->isChecked();
+    unsigned int measureEventDistance = ui->measureEventDistance->text().toInt();
 
     if( incomingRate <= 0 || serviceDuration <= 0 )
     {
@@ -56,10 +60,11 @@ void MainWindow::on_startSimulationButton_clicked()
 
     if( !mSimulator )
     {
-        mSimulator.reset( new Simulator( incomingRate, serviceDuration ) );
+        mSimulator.reset( new Simulator( incomingRate, serviceDuration, numServiceUnits, this ) );
         connect( mSimulator.data(), SIGNAL( finished() ), this,  SLOT( on_Simulator_finished() ) );
         connect( mSimulator.data(), SIGNAL( updateValues(Simulator::SimulationData) ),
-                 this, SLOT( on_Simulator_updateValues(Simulator::SimulationData)) );
+                 this, SLOT( on_Simulator_updateValues(Simulator::SimulationData) ) );
+        mSimulator->configureMeasureEvents( enableMeasureEvents, measureEventDistance );
         mSimulator->start();
     }
     else
@@ -79,9 +84,9 @@ void MainWindow::on_Simulator_finished()
     ui->startSimulationButton->setText( tr( "Start Simulation" ) );
 }
 
-void MainWindow::on_Simulator_updateValues( Simulator::SimulationData data )
+void MainWindow::on_Simulator_updateValues( const Simulator::SimulationData &data )
 {
-    ui->simTime->setText( QString::number( data.simulationTime / 1000 ) + " s" );
+    ui->simTime->setText( QString::number( data.simulationTime ) + " s" );
     ui->valueN->setText( QString::number( data.n ) );
     ui->valueT->setText( QString::number( data.t ) );
     ui->valueNQ->setText( QString::number( data.nq ) );

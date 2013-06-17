@@ -36,25 +36,31 @@ public:
     {
         SimulationData();
         unsigned long simulationTime, nextEventTime;
+        int numServiceUnits;
         int n, t, nq, tq;
         float variance, standardDerivation, minimalSD;
         unsigned long nsum, tsum, nqsum, tqsum;
         unsigned long nnum, tnum, nqnum, tqnum;
         int curn, curt, curnq, curtq;
+        bool enableMeasureEvents;
+        unsigned int measureEventDistance;
     };
 
     explicit Simulator( unsigned int incomingRate, unsigned int serviceDuration,
-                        QObject *parent = 0 );
+                        unsigned int serviceUnits, QObject *parent = 0 );
     void run();
 
     bool isRunning();
     void quit();
+    void configureMeasureEvents( bool enabled, unsigned int distance );
 
 signals:
     void finished();
-    void updateValues( Simulator::SimulationData data );
+    void updateValues( const Simulator::SimulationData &data );
 
 private:
+    void updateStatistics();
+
     Generator mIncomingRateGenerator, mServiceDurationGenerator;
     bool mRunning, mFirstRun;
 

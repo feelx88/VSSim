@@ -22,13 +22,15 @@
 #include <math.h>
 
 Simulator::Simulator( unsigned int incomingRate, unsigned int serviceDuration,
-                      QObject *parent )
+                      unsigned int serviceUnits, QObject *parent )
     : QThread( parent ),
       mRunning( true ),
       mFirstRun( true )
 {
     mIncomingRateGenerator.setValue( incomingRate );
     mServiceDurationGenerator.setValue( serviceDuration );
+
+    mData.numServiceUnits = serviceUnits;
 
     mTimer.setInterval( 100 );
     connect( &mTimer, SIGNAL( timeout() ), this, SLOT( emitUpdateSignal() ) );
@@ -39,19 +41,25 @@ void Simulator::run()
 {
     unsigned long nextIncomingTime, nextFinishedTime;
 
-    //Initialize simulation: generate EET_INCOMING event
+    //Initialize simulation: generate EET_INCOMING event and first EET_MEASURE event
     nextIncomingTime = mIncomingRateGenerator.generate();
-    mEvents.insert( std::make_pair( nextIncomingTime,
-                                    Event( Event::EET_INCOMING_EVENT, nextIncomingTime ) ) );
-    mEvents.insert( std::make_pair( 1000, Event( Event::EET_MEASURE_EVENT, 1000 ) ) );
-    mData.nextEventTime = nextIncomingTime;
+    mEvents.insert( Event::makeEventPair( Event::EET_INCOMING_EVENT,
+                                          nextIncomingTime ) );
+
+    if( mData.enableMeasureEvents )
+    {
+        mEvents.insert( Event::makeEventPair( Event::EET_MEASURE_EVENT,
+                                              mData.measureEventDistance ) );
+    }
 
     while( mRunning )
     {
-        mData.simulationTime = mData.nextEventTime;
+        //Get next Event's time
+        mData.simulationTime = mEvents.begin()->first;
 
         for( auto it : mEvents )
         {
+            //Handle only events at current timestamp
             if( it.first != mData.simulationTime )
             {
                 break;
@@ -60,35 +68,38 @@ void Simulator::run()
             switch( it.second.getType() )
             {
             case Event::EET_INCOMING_EVENT:
-                nextIncomingTime = mData.simulationTime + mIncomingRateGenerator.generate();
-                nextFinishedTime = mData.simulationTime + mServiceDurationGenerator.generate();
-                mEvents.insert( std::make_pair( nextIncomingTime,
-                                                Event( Event::EET_INCOMING_EVENT, nextIncomingTime ) ) );
-                mEvents.insert( std::make_pair( nextFinishedTime,
-                                                Event( Event::EET_FINISHED_EVENT, nextFinishedTime ) ) );
+                //Generate new incoming event and duration event for current
+                //incoming event
+                nextIncomingTime = mData.simulationTime
+                        + mIncomingRateGenerator.generate();
+                nextFinishedTime = mData.simulationTime
+                        + mServiceDurationGenerator.generate();
+                mEvents.insert( Event::makeEventPair( Event::EET_INCOMING_EVENT,
+                                                      nextIncomingTime ) );
+                mEvents.insert( Event::makeEventPair( Event::EET_FINISHED_EVENT,
+                                                      nextFinishedTime ) );
 
+                //Increment current service unit usage
                 mData.curn++;
 
-                mData.nnum++;
-                mData.nsum += mData.curn;
-                mData.n = (float)mData.nsum / (float)mData.nnum;
+                updateStatistics();
                 break;
 
             case Event::EET_FINISHED_EVENT:
+                //decrement current service unit usage
                 mData.curn--;
 
-                mData.nnum++;
-                mData.nsum += mData.curn;
-                mData.n = (float)mData.nsum / (float)mData.nnum;
+                updateStatistics();
                 break;
 
             case Event::EET_MEASURE_EVENT:
-                mData.nnum++;
-                mData.nsum += mData.curn;
-                mData.n = (float)mData.nsum / (float)mData.nnum;
+                //Schedule new event
+                mEvents.insert( Event::makeEventPair(
+                                    Event::EET_MEASURE_EVENT,
+                                    mData.simulationTime
+                                    + mData.measureEventDistance ) );
 
-                mEvents.insert( std::make_pair( mData.simulationTime + 1000,
-                                                Event( Event::EET_MEASURE_EVENT, mData.simulationTime + 1000 ) ) );
+                updateStatistics();
                 break;
 
             default:
@@ -97,9 +108,6 @@ void Simulator::run()
         }
 
         mEvents.erase( mData.simulationTime );
-
-        mData.nextEventTime = mEvents.begin()->first;
-        mData.t = mData.curn;
     }
 
     mTimer.stop();
@@ -117,9 +125,23 @@ void Simulator::quit()
     mRunning = false;
 }
 
+void Simulator::configureMeasureEvents( bool enabled, unsigned int distance )
+{
+    mData.enableMeasureEvents = enabled;
+    mData.measureEventDistance = distance;
+}
+
 void Simulator::emitUpdateSignal()
 {
     emit updateValues( mData );
+}
+
+void Simulator::updateStatistics()
+{
+    //Update n
+    mData.nnum++;
+    mData.nsum += mData.curn;
+    mData.n = (float)mData.nsum / (float)mData.nnum;
 }
 
 Simulator::SimulationData::SimulationData()
@@ -134,6 +156,8 @@ Simulator::SimulationData::SimulationData()
       minimalSD( 0.000000001f ),
       nsum( 0 ), tsum( 0 ), nqsum( 0 ), tqsum( 0 ),
       nnum( 0 ), tnum( 0 ), nqnum( 0 ), tqnum( 0 ),
-      curn( 0 ), curt( 0 ), curnq( 0 ), curtq( 0 )
+      curn( 0 ), curt( 0 ), curnq( 0 ), curtq( 0 ),
+      enableMeasureEvents( true ),
+      measureEventDistance( 100 )
 {
 }

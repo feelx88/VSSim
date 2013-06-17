@@ -34,3 +34,8 @@ unsigned long Event::getStartTime() const
 {
     return mStartTime;
 }
+
+std::pair<unsigned long, Event> Event::makeEventPair(Event::E_EVENT_TYPE type, unsigned long startTime)
+{
+    return std::make_pair( startTime, Event( type, startTime ) );
+}

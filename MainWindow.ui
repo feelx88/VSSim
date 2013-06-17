@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>676</width>
-    <height>387</height>
+    <width>672</width>
+    <height>383</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -28,18 +28,96 @@
       </property>
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
-        <widget class="QLineEdit" name="incomingRate">
-         <property name="placeholderText">
-          <string>average incoming rate</string>
+        <layout class="QFormLayout" name="formLayout_2">
+         <property name="topMargin">
+          <number>10</number>
          </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLineEdit" name="serviceRate">
-         <property name="placeholderText">
-          <string>average service completion rate</string>
-         </property>
-        </widget>
+         <item row="0" column="1">
+          <widget class="QSpinBox" name="serviceUnitsCount">
+           <property name="buttonSymbols">
+            <enum>QAbstractSpinBox::UpDownArrows</enum>
+           </property>
+           <property name="specialValueText">
+            <string>oo</string>
+           </property>
+           <property name="minimum">
+            <number>0</number>
+           </property>
+           <property name="maximum">
+            <number>500</number>
+           </property>
+           <property name="value">
+            <number>0</number>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_6">
+           <property name="text">
+            <string>Number of service units</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QLineEdit" name="incomingRate">
+           <property name="placeholderText">
+            <string>Enter value</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QLineEdit" name="serviceRate">
+           <property name="placeholderText">
+            <string>Enter value</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="label_7">
+           <property name="text">
+            <string>Average distance of incoming requests</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="label_8">
+           <property name="text">
+            <string>Average time for requests to be finished</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="QCheckBox" name="enableMeasureEvents">
+           <property name="text">
+            <string/>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="label_9">
+           <property name="text">
+            <string>Enable measure events</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0">
+          <widget class="QLabel" name="label_10">
+           <property name="text">
+            <string>Distance between measure events</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="1">
+          <widget class="QLineEdit" name="measureEventDistance">
+           <property name="text">
+            <string>50</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
        <item>
         <spacer name="horizontalSpacer_2">
@@ -276,7 +354,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>676</width>
+     <width>672</width>
      <height>21</height>
     </rect>
    </property>
@@ -288,8 +366,6 @@
   <tabstop>startSimulationButton</tabstop>
   <tabstop>valueT</tabstop>
   <tabstop>valueNQ</tabstop>
-  <tabstop>incomingRate</tabstop>
-  <tabstop>serviceRate</tabstop>
  </tabstops>
  <resources/>
  <connections/>
