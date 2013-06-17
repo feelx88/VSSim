@@ -25,4 +25,4 @@ HEADERS  += MainWindow.h \
 
 FORMS    += MainWindow.ui
 
-QMAKE_CXXFLAGS += -std=c++0x
+QMAKE_CXXFLAGS += -std=gnu++0x
