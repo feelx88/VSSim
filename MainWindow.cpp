@@ -41,13 +41,15 @@ MainWindow::~MainWindow()
 void MainWindow::on_startSimulationButton_clicked()
 {
     unsigned int numServiceUnits = ui->serviceUnitsCount->value();
-    unsigned int incomingRate = ui->incomingRate->text().toInt();
-    unsigned int serviceDuration = ui->serviceRate->text().toInt();
+    unsigned int incomingDistance = ui->incomingRate->text().toInt();
+    unsigned int serviceDistance = ui->serviceRate->text().toInt();
 
     bool enableMeasureEvents = ui->enableMeasureEvents->isChecked();
     unsigned int measureEventDistance = ui->measureEventDistance->text().toInt();
 
-    if( incomingRate <= 0 || serviceDuration <= 0 )
+    float precision = std::pow( 10.f, -( ui->precision->text().toInt() ) );
+
+    if( incomingDistance <= 0 || serviceDistance <= 0 )
     {
         QMessageBox *msg = new QMessageBox( this );
         msg->setText( tr( "Invalid values entered!" ) );
@@ -55,16 +57,16 @@ void MainWindow::on_startSimulationButton_clicked()
         return;
     }
 
-    ui->progressBar->setValue( 0 );
     ui->startSimulationButton->setText( tr( "Stop Simulation" ) );
 
     if( !mSimulator )
     {
-        mSimulator.reset( new Simulator( incomingRate, serviceDuration, numServiceUnits, this ) );
+        mSimulator.reset( new Simulator( incomingDistance, serviceDistance, numServiceUnits, this ) );
         connect( mSimulator.data(), SIGNAL( finished() ), this,  SLOT( on_Simulator_finished() ) );
         connect( mSimulator.data(), SIGNAL( updateValues(Simulator::SimulationData) ),
                  this, SLOT( on_Simulator_updateValues(Simulator::SimulationData) ) );
         mSimulator->configureMeasureEvents( enableMeasureEvents, measureEventDistance );
+        mSimulator->setPrecision( precision );
         mSimulator->start();
     }
     else
@@ -87,10 +89,26 @@ void MainWindow::on_Simulator_finished()
 void MainWindow::on_Simulator_updateValues( const Simulator::SimulationData &data )
 {
     ui->simTime->setText( QString::number( data.simulationTime ) + " s" );
-    ui->valueN->setText( QString::number( data.n ) );
-    ui->valueT->setText( QString::number( data.t ) );
-    ui->valueNQ->setText( QString::number( data.nq ) );
-    ui->valueTQ->setText( QString::number( data.tq ) );
-    ui->progressBar->setValue( data.standardDerivation );
+    ui->valueN->setText( QString::number( data.N ) );
+    ui->valueT->setText( QString::number( data.T ) );
+    ui->valueNQ->setText( QString::number( data.NQ ) );
+    ui->valueTQ->setText( QString::number( data.TQ ) );
+    float f = 1.f / data.minimalSD;
+    ui->standardDerivationN->setValue(
+                std::max( 0.f, 100.f - data.standardDerivationN * f ) );
+    ui->standardDerivationT->setValue(
+                std::max( 0.f, 100.f - data.standardDerivationT * f ) );
+    ui->standardDerivationNQ->setValue(
+                std::max( 0.f, 100.f - data.standardDerivationNQ * f ) );
+    ui->standardDerivationTQ->setValue(
+                std::max( 0.f, 100.f - data.standardDerivationTQ * f ) );
+    ui->standardDerivationN->setFormat(
+                QString::number( data.standardDerivationN ) );
+    ui->standardDerivationT->setFormat(
+                QString::number( data.standardDerivationT ) );
+    ui->standardDerivationNQ->setFormat(
+                QString::number( data.standardDerivationNQ ) );
+    ui->standardDerivationTQ->setFormat(
+                QString::number( data.standardDerivationTQ ) );
     ui->checkBox->setChecked( mSimulator ? !mSimulator->isRunning() : false );
 }

@@ -37,11 +37,15 @@ public:
         SimulationData();
         unsigned long simulationTime, nextEventTime;
         int numServiceUnits;
-        int n, t, nq, tq;
-        float variance, standardDerivation, minimalSD;
-        unsigned long nsum, tsum, nqsum, tqsum;
-        unsigned long nnum, tnum, nqnum, tqnum;
-        int curn, curt, curnq, curtq;
+        float N, T, NQ, TQ;
+        float varianceN, varianceT, varianceNQ, varianceTQ;
+        float standardDerivationN, standardDerivationT;
+        float standardDerivationNQ, standardDerivationTQ;
+        float minimalSD;
+        unsigned long Nsum, Tsum, NQsum, TQsum;
+        unsigned long NsumSQ, TsumSQ, NQsumSQ, TQsumSQ;
+        unsigned long Nnum, Tnum, NQnum, TQnum;
+        int curN, curT, curNQ, curTQ;
         bool enableMeasureEvents;
         unsigned int measureEventDistance;
     };
@@ -53,6 +57,7 @@ public:
     bool isRunning();
     void quit();
     void configureMeasureEvents( bool enabled, unsigned int distance );
+    void setPrecision( float precision );
 
 signals:
     void finished();

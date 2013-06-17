@@ -72,28 +72,57 @@ void Simulator::run()
                 //incoming event
                 nextIncomingTime = mData.simulationTime
                         + mIncomingRateGenerator.generate();
-                nextFinishedTime = mData.simulationTime
-                        + mServiceDurationGenerator.generate();
                 mEvents.insert( Event::makeEventPair( Event::EET_INCOMING_EVENT,
                                                       nextIncomingTime ) );
-                mEvents.insert( Event::makeEventPair( Event::EET_FINISHED_EVENT,
-                                                      nextFinishedTime ) );
 
-                //Increment current service unit usage
-                mData.curn++;
+                //If there is a finite number of service units, check if they are
+                //busy
+                if( mData.numServiceUnits > 0 && mData.curN == mData.numServiceUnits )
+                {
+                    //Increment queue usage
+                    mData.curNQ++;
+                }
+                else
+                {
+                    //As the request can now be serviced, add its finished event
+                    nextFinishedTime = mData.simulationTime
+                            + mServiceDurationGenerator.generate();
+                    mEvents.insert( Event::makeEventPair( Event::EET_FINISHED_EVENT,
+                                                          nextFinishedTime ) );
+
+                    //Increment service unit ussage
+                    mData.curN++;
+                }
+
+                mData.curT = nextFinishedTime;
 
                 updateStatistics();
                 break;
 
             case Event::EET_FINISHED_EVENT:
-                //decrement current service unit usage
-                mData.curn--;
+
+                //If there is a finite number of service units, check if there
+                //are queud requests
+                if( mData.numServiceUnits > 0 && mData.curNQ > 0 )
+                {
+                    //Decrement queue usage
+                    mData.curNQ--;
+
+                    //As the request can now be serviced, add its finished event
+                    mEvents.insert( Event::makeEventPair( Event::EET_FINISHED_EVENT,
+                                                          nextFinishedTime ) );
+                }
+                else
+                {
+                    //Decrement current service unit usage
+                    mData.curN--;
+                }
 
                 updateStatistics();
                 break;
 
             case Event::EET_MEASURE_EVENT:
-                //Schedule new event
+                //Schedule new measure event
                 mEvents.insert( Event::makeEventPair(
                                     Event::EET_MEASURE_EVENT,
                                     mData.simulationTime
@@ -108,6 +137,15 @@ void Simulator::run()
         }
 
         mEvents.erase( mData.simulationTime );
+
+        //Check if stop criteria are met
+        if( mData.standardDerivationN <= mData.minimalSD
+                //&& mData.standardDerivationT <= mData.minimalSD
+                && mData.standardDerivationNQ <= mData.minimalSD )
+                //&& mData.standardDerivationTQ <= mData.minimalSD )
+        {
+            mRunning = false;
+        }
     }
 
     mTimer.stop();
@@ -131,6 +169,11 @@ void Simulator::configureMeasureEvents( bool enabled, unsigned int distance )
     mData.measureEventDistance = distance;
 }
 
+void Simulator::setPrecision( float precision )
+{
+    mData.minimalSD = precision;
+}
+
 void Simulator::emitUpdateSignal()
 {
     emit updateValues( mData );
@@ -138,25 +181,50 @@ void Simulator::emitUpdateSignal()
 
 void Simulator::updateStatistics()
 {
-    //Update n
-    mData.nnum++;
-    mData.nsum += mData.curn;
-    mData.n = (float)mData.nsum / (float)mData.nnum;
+    //Update N
+    mData.Nnum++;
+    mData.Nsum += mData.curN;
+    mData.NsumSQ += std::pow( mData.curN, 2.f );
+    mData.N = (float)mData.Nsum / (float)mData.Nnum;
+    mData.varianceN = ( ( (float)mData.NsumSQ / (float)mData.Nnum )
+                        - std::pow( mData.N, 2.f ) ) / (float)mData.Nnum;
+    mData.standardDerivationN = std::sqrt( mData.varianceN );
+
+    //Update T
+    mData.Tnum++;
+    mData.Tsum += mData.curT;
+    mData.TsumSQ += std::pow( mData.curT, 2 );
+    mData.T = (float)mData.Tsum / (float)mData.Tnum;
+
+    //Uodate NQ
+    mData.NQnum++;
+    mData.NQsum += mData.curNQ;
+    mData.NQsumSQ += std::pow( mData.curNQ, 2 );
+    mData.NQ = (float)mData.NQsum / (float)mData.NQnum;
+    mData.varianceNQ = ( ( (float)mData.NQsumSQ / (float)mData.NQnum )
+                        - std::pow( mData.NQ, 2.f ) ) / (float)mData.NQnum;
+    mData.standardDerivationNQ = std::sqrt( mData.varianceNQ );
 }
 
 Simulator::SimulationData::SimulationData()
     : simulationTime( 0 ),
       nextEventTime( 0 ),
-      n( 0 ),
-      t( 0 ),
-      nq( 0 ),
-      tq( 0 ),
-      variance( std::numeric_limits<float>::max() ),
-      standardDerivation( std::numeric_limits<float>::max() ),
-      minimalSD( 0.000000001f ),
-      nsum( 0 ), tsum( 0 ), nqsum( 0 ), tqsum( 0 ),
-      nnum( 0 ), tnum( 0 ), nqnum( 0 ), tqnum( 0 ),
-      curn( 0 ), curt( 0 ), curnq( 0 ), curtq( 0 ),
+      N( 0 ),
+      T( 0 ),
+      NQ( 0 ),
+      TQ( 0 ),
+      varianceN( std::numeric_limits<float>::max() ),
+      varianceT( std::numeric_limits<float>::max() ),
+      varianceNQ( std::numeric_limits<float>::max() ),
+      varianceTQ( std::numeric_limits<float>::max() ),
+      standardDerivationN( std::numeric_limits<float>::max() ),
+      standardDerivationT( std::numeric_limits<float>::max() ),
+      standardDerivationNQ( std::numeric_limits<float>::max() ),
+      standardDerivationTQ( std::numeric_limits<float>::max() ),
+      minimalSD( 1.e-3f ),
+      Nsum( 0 ), Tsum( 0 ), NQsum( 0 ), TQsum( 0 ),
+      Nnum( 0 ), Tnum( 0 ), NQnum( 0 ), TQnum( 0 ),
+      curN( 0 ), curT( 0 ), curNQ( 0 ), curTQ( 0 ),
       enableMeasureEvents( true ),
       measureEventDistance( 100 )
 {

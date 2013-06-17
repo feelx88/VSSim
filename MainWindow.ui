@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>672</width>
-    <height>383</height>
+    <width>732</width>
+    <height>447</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -114,6 +114,20 @@
           <widget class="QLineEdit" name="measureEventDistance">
            <property name="text">
             <string>50</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="0">
+          <widget class="QLabel" name="label_15">
+           <property name="text">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Precision for stop check (1.0e-X)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="1">
+          <widget class="QLineEdit" name="precision">
+           <property name="text">
+            <string>8</string>
            </property>
           </widget>
          </item>
@@ -290,6 +304,74 @@
            </property>
           </widget>
          </item>
+         <item row="5" column="1">
+          <widget class="QProgressBar" name="standardDerivationN">
+           <property name="value">
+            <number>0</number>
+           </property>
+           <property name="format">
+            <string>0</string>
+           </property>
+          </widget>
+         </item>
+         <item row="8" column="1">
+          <widget class="QProgressBar" name="standardDerivationTQ">
+           <property name="value">
+            <number>0</number>
+           </property>
+           <property name="format">
+            <string>0</string>
+           </property>
+          </widget>
+         </item>
+         <item row="7" column="1">
+          <widget class="QProgressBar" name="standardDerivationNQ">
+           <property name="value">
+            <number>0</number>
+           </property>
+           <property name="format">
+            <string>0</string>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="1">
+          <widget class="QProgressBar" name="standardDerivationT">
+           <property name="value">
+            <number>0</number>
+           </property>
+           <property name="format">
+            <string>0</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="0">
+          <widget class="QLabel" name="label_11">
+           <property name="text">
+            <string>Standard derivation of N</string>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="0">
+          <widget class="QLabel" name="label_12">
+           <property name="text">
+            <string>Standard derivation of T</string>
+           </property>
+          </widget>
+         </item>
+         <item row="7" column="0">
+          <widget class="QLabel" name="label_13">
+           <property name="text">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Standard derivation of N&lt;span style=&quot; vertical-align:sub;&quot;&gt;Q&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+          </widget>
+         </item>
+         <item row="8" column="0">
+          <widget class="QLabel" name="label_14">
+           <property name="text">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Standard derivation of T&lt;span style=&quot; vertical-align:sub;&quot;&gt;Q&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+          </widget>
+         </item>
         </layout>
        </item>
        <item>
@@ -334,16 +416,6 @@
          </property>
         </spacer>
        </item>
-       <item>
-        <widget class="QProgressBar" name="progressBar">
-         <property name="value">
-          <number>0</number>
-         </property>
-         <property name="format">
-          <string>Variance near minimum</string>
-         </property>
-        </widget>
-       </item>
       </layout>
      </widget>
     </item>
@@ -354,7 +426,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>672</width>
+     <width>732</width>
      <height>21</height>
     </rect>
    </property>
