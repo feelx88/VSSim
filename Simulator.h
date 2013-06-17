@@ -52,6 +52,8 @@ public:
 
     explicit Simulator( unsigned int incomingRate, unsigned int serviceDuration,
                         unsigned int serviceUnits, QObject *parent = 0 );
+
+    virtual ~Simulator();
     void run();
 
     bool isRunning();
@@ -68,8 +70,6 @@ private:
 
     Generator mIncomingRateGenerator, mServiceDurationGenerator;
     bool mRunning, mFirstRun;
-
-    QTimer mTimer;
 
     SimulationData mData;
 

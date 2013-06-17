@@ -27,6 +27,8 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     qRegisterMetaType<Simulator::SimulationData>( "Simulator::SimulationData" );
+
+    mTimer.setInterval( 100 );
 }
 
 MainWindow::~MainWindow()
@@ -65,9 +67,11 @@ void MainWindow::on_startSimulationButton_clicked()
         connect( mSimulator.data(), SIGNAL( finished() ), this,  SLOT( on_Simulator_finished() ) );
         connect( mSimulator.data(), SIGNAL( updateValues(Simulator::SimulationData) ),
                  this, SLOT( on_Simulator_updateValues(Simulator::SimulationData) ) );
+        connect( &mTimer, SIGNAL( timeout() ), mSimulator.data(), SLOT( emitUpdateSignal() ) );
         mSimulator->configureMeasureEvents( enableMeasureEvents, measureEventDistance );
         mSimulator->setPrecision( precision );
         mSimulator->start();
+        mTimer.start();
     }
     else
     {

@@ -30,11 +30,11 @@ Simulator::Simulator( unsigned int incomingRate, unsigned int serviceDuration,
     mIncomingRateGenerator.setValue( incomingRate );
     mServiceDurationGenerator.setValue( serviceDuration );
 
-    mData.numServiceUnits = serviceUnits;
+    mData.numServiceUnits = serviceUnits;    
+}
 
-    mTimer.setInterval( 100 );
-    connect( &mTimer, SIGNAL( timeout() ), this, SLOT( emitUpdateSignal() ) );
-    mTimer.start( 100 );
+Simulator::~Simulator()
+{
 }
 
 void Simulator::run()
@@ -148,7 +148,6 @@ void Simulator::run()
         }
     }
 
-    mTimer.stop();
     emitUpdateSignal();
     emit finished();
 }

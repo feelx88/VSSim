@@ -24,6 +24,7 @@
 #include <QThread>
 #include <QMutex>
 #include <QScopedPointer>
+#include <QTimer>
 #include "Simulator.h"
 
 namespace Ui {
@@ -47,6 +48,8 @@ private:
     Ui::MainWindow *ui;
 
     QScopedPointer<Simulator> mSimulator;
+
+    QTimer mTimer;
 };
 
 #endif // MAINWINDOW_H
