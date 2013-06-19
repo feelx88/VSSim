@@ -25,12 +25,13 @@ Simulator::Simulator( unsigned int incomingRate, unsigned int serviceDuration,
                       unsigned int serviceUnits, QObject *parent )
     : QThread( parent ),
       mRunning( true ),
-      mFirstRun( true )
+      mFirstRun( true ),
+      mDeleteEventAtZero( false )
 {
     mIncomingRateGenerator.setValue( incomingRate );
     mServiceDurationGenerator.setValue( serviceDuration );
 
-    mData.numServiceUnits = serviceUnits;    
+    mData.numServiceUnits = serviceUnits;
 }
 
 Simulator::~Simulator()
@@ -44,18 +45,20 @@ void Simulator::run()
     //Initialize simulation: generate EET_INCOMING event and first EET_MEASURE event
     nextIncomingTime = mIncomingRateGenerator.generate();
     mEvents.insert( Event::makeEventPair( Event::EET_INCOMING_EVENT,
-                                          nextIncomingTime ) );
+                                          nextIncomingTime, 0 ) );
 
     if( mData.enableMeasureEvents )
     {
         mEvents.insert( Event::makeEventPair( Event::EET_MEASURE_EVENT,
-                                              mData.measureEventDistance ) );
+                                              mData.measureEventDistance, 0 ) );
     }
 
     while( mRunning )
     {
         //Get next Event's time
         mData.simulationTime = mEvents.begin()->first;
+
+        //Iterate over all events (they are sorted beacuse of std::multimap)
 
         for( auto it : mEvents )
         {
@@ -68,12 +71,14 @@ void Simulator::run()
             switch( it.second.getType() )
             {
             case Event::EET_INCOMING_EVENT:
+            {
                 //Generate new incoming event and duration event for current
                 //incoming event
                 nextIncomingTime = mData.simulationTime
                         + mIncomingRateGenerator.generate();
                 mEvents.insert( Event::makeEventPair( Event::EET_INCOMING_EVENT,
-                                                      nextIncomingTime ) );
+                                                      nextIncomingTime,
+                                                      mData.simulationTime ) );
 
                 //If there is a finite number of service units, check if they are
                 //busy
@@ -81,70 +86,109 @@ void Simulator::run()
                 {
                     //Increment queue usage
                     mData.curNQ++;
+
+                    //Create START_SERVICE event to save the creation time
+                    //Use start time of 0 to indicate unknown starting time
+                    mEvents.insert( Event::makeEventPair( Event::EET_START_SERVICE_EVENT,
+                                                          0, mData.simulationTime ) );
                 }
                 else
                 {
-                    //As the request can now be serviced, add its finished event
+                    //Increment service unit ussage
+                    mData.curN++;
+
+                    //As the request can be directly serviced, add its finished event
                     nextFinishedTime = mData.simulationTime
                             + mServiceDurationGenerator.generate();
                     mEvents.insert( Event::makeEventPair( Event::EET_FINISHED_EVENT,
-                                                          nextFinishedTime ) );
-
-                    //Increment service unit ussage
-                    mData.curN++;
+                                                          nextFinishedTime,
+                                                          mData.simulationTime ) );
                 }
 
-                mData.curT = nextFinishedTime;
+                //Update quantity statistics
+                updateQuantityStatistics();
 
-                updateStatistics();
+                //mEvents.erase( it );
+
                 break;
+            }
 
             case Event::EET_FINISHED_EVENT:
+            {
+                //Decrement current service unit usage
+                mData.curN--;
 
-                //If there is a finite number of service units, check if there
-                //are queud requests
-                if( mData.numServiceUnits > 0 && mData.curNQ > 0 )
+                mData.curT = mData.simulationTime - it.second.getCreationTime();
+
+                //Check for queued request created at time 0
+                auto it2 = mEvents.find( 0 );
+                if( it2 != mEvents.end() && it.second.getType() == Event::EET_START_SERVICE_EVENT )
                 {
                     //Decrement queue usage
                     mData.curNQ--;
 
+                    mData.curTQ = mData.simulationTime - it2->second.getCreationTime();
+
                     //As the request can now be serviced, add its finished event
+                    nextFinishedTime = mData.simulationTime
+                            + mServiceDurationGenerator.generate();
                     mEvents.insert( Event::makeEventPair( Event::EET_FINISHED_EVENT,
-                                                          nextFinishedTime ) );
-                }
-                else
-                {
-                    //Decrement current service unit usage
-                    mData.curN--;
+                                                          nextFinishedTime,
+                                                          mData.simulationTime ) );
+
+                    //Delete Event
+                    mEvents.erase( it2 );
                 }
 
-                updateStatistics();
+                //Update duration statistics
+                updateDurationStatistics();
+
+                //Update quantity statistics
+                updateQuantityStatistics();
+
+                //mEvents.erase( it );
+
                 break;
+            }
+
+            case Event::EET_START_SERVICE_EVENT:
+            {
+                //THIS SHOULD NEVER HAPPEN! (start time of these events is 0...)
+                break;
+            }
 
             case Event::EET_MEASURE_EVENT:
+            {
                 //Schedule new measure event
                 mEvents.insert( Event::makeEventPair(
                                     Event::EET_MEASURE_EVENT,
                                     mData.simulationTime
-                                    + mData.measureEventDistance ) );
+                                    + mData.measureEventDistance,
+                                    mData.simulationTime ) );
 
-                updateStatistics();
+                //mEvents.erase( it );
                 break;
+            }
 
             default:
                 break;
             }
         }
 
+        //Delete current events cause they are no longer needed
         mEvents.erase( mData.simulationTime );
 
         //Check if stop criteria are met
         if( mData.standardDerivationN <= mData.minimalSD
-                //&& mData.standardDerivationT <= mData.minimalSD
-                && mData.standardDerivationNQ <= mData.minimalSD )
-                //&& mData.standardDerivationTQ <= mData.minimalSD )
+                && mData.standardDerivationT <= mData.minimalSD )
         {
-            mRunning = false;
+            //Only check queue parameters if there is need for a queue
+            if( mData.numServiceUnits == 0
+                    || ( mData.standardDerivationNQ <= mData.minimalSD
+                    && mData.standardDerivationTQ <= mData.minimalSD ) )
+            {
+                mRunning = false;
+            }
         }
     }
 
@@ -178,31 +222,63 @@ void Simulator::emitUpdateSignal()
     emit updateValues( mData );
 }
 
-void Simulator::updateStatistics()
+void Simulator::updateQuantityStatistics()
 {
     //Update N
     mData.Nnum++;
     mData.Nsum += mData.curN;
-    mData.NsumSQ += std::pow( mData.curN, 2.f );
+    mData.NsumSQ += mData.curN * mData.curN;
     mData.N = (float)mData.Nsum / (float)mData.Nnum;
     mData.varianceN = ( ( (float)mData.NsumSQ / (float)mData.Nnum )
-                        - std::pow( mData.N, 2.f ) ) / (float)mData.Nnum;
+                        - mData.N * mData.N ) / (float)mData.Nnum;
     mData.standardDerivationN = std::sqrt( mData.varianceN );
 
+    //Uodate NQ
+    if( mData.numServiceUnits > 0 )
+    {
+        mData.NQnum++;
+        mData.NQsum += mData.curNQ;
+        mData.NQsumSQ += mData.curNQ * mData.curNQ;
+        mData.NQ = (float)mData.NQsum / (float)mData.NQnum;
+        mData.varianceNQ = ( ( (float)mData.NQsumSQ / (float)mData.NQnum )
+                            - mData.NQ * mData.NQ ) / (float)mData.NQnum;
+        mData.standardDerivationNQ = std::sqrt( mData.varianceNQ );
+    }
+    else
+    {
+        mData.NQ = 0;
+        mData.standardDerivationNQ = 0.f;
+    }
+}
+
+void Simulator::updateDurationStatistics()
+{
     //Update T
     mData.Tnum++;
     mData.Tsum += mData.curT;
-    mData.TsumSQ += std::pow( mData.curT, 2 );
+    mData.TsumSQ += mData.curT * mData.curT;
     mData.T = (float)mData.Tsum / (float)mData.Tnum;
+    mData.varianceT = ( ( (float)mData.TsumSQ / (float)mData.Tnum )
+                        - mData.T * mData.T ) / (float)mData.Tnum;
+    mData.standardDerivationT = std::sqrt( mData.varianceT );
 
-    //Uodate NQ
-    mData.NQnum++;
-    mData.NQsum += mData.curNQ;
-    mData.NQsumSQ += std::pow( mData.curNQ, 2 );
-    mData.NQ = (float)mData.NQsum / (float)mData.NQnum;
-    mData.varianceNQ = ( ( (float)mData.NQsumSQ / (float)mData.NQnum )
-                        - std::pow( mData.NQ, 2.f ) ) / (float)mData.NQnum;
-    mData.standardDerivationNQ = std::sqrt( mData.varianceNQ );
+    //Update TQ
+    if( mData.numServiceUnits > 0 )
+    {
+        mData.TQnum++;
+        mData.TQsum += mData.curTQ;
+        mData.TQsumSQ += mData.curTQ * mData.curTQ;
+        mData.TQ = (float)mData.TQsum / (float)mData.TQnum;
+        mData.varianceTQ = ( ( (float)mData.TQsumSQ / (float)mData.TQnum )
+                            - mData.TQ * mData.TQ ) / (float)mData.TQnum;
+        mData.standardDerivationTQ = std::sqrt( mData.varianceTQ );
+    }
+
+    else
+    {
+        mData.TQ = 0;
+        mData.standardDerivationTQ = 0.f;
+    }
 }
 
 Simulator::SimulationData::SimulationData()
@@ -222,6 +298,7 @@ Simulator::SimulationData::SimulationData()
       standardDerivationTQ( std::numeric_limits<float>::max() ),
       minimalSD( 1.e-3f ),
       Nsum( 0 ), Tsum( 0 ), NQsum( 0 ), TQsum( 0 ),
+      NsumSQ( 0 ), TsumSQ( 0 ), NQsumSQ( 0 ), TQsumSQ( 0 ),
       Nnum( 0 ), Tnum( 0 ), NQnum( 0 ), TQnum( 0 ),
       curN( 0 ), curT( 0 ), curNQ( 0 ), curTQ( 0 ),
       enableMeasureEvents( true ),

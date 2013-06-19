@@ -66,10 +66,11 @@ signals:
     void updateValues( const Simulator::SimulationData &data );
 
 private:
-    void updateStatistics();
+    void updateQuantityStatistics();
+    void updateDurationStatistics();
 
     Generator mIncomingRateGenerator, mServiceDurationGenerator;
-    bool mRunning, mFirstRun;
+    bool mRunning, mFirstRun, mDeleteEventAtZero;
 
     SimulationData mData;
 

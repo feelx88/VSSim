@@ -29,20 +29,24 @@ public:
     {
         EET_INCOMING_EVENT = 0,
         EET_FINISHED_EVENT,
+        EET_START_SERVICE_EVENT,
         EET_MEASURE_EVENT
     };
 
-    Event( E_EVENT_TYPE type, unsigned long startTime );
+    Event( E_EVENT_TYPE type, unsigned long startTime, unsigned long creationTime );
 
     E_EVENT_TYPE getType() const;
+    void setStartTime( unsigned long startTime );
     unsigned long getStartTime() const;
+    unsigned long getCreationTime() const;
 
     static std::pair<unsigned long, Event> makeEventPair( E_EVENT_TYPE type,
-                                                          unsigned long startTime );
+                                                          unsigned long startTime,
+                                                          unsigned long creationTime );
 
 private:
     E_EVENT_TYPE mType;
-    unsigned long mStartTime;
+    unsigned long mStartTime, mCreationTime;
 };
 
 #endif // EVENT_H

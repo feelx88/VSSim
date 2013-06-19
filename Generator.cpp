@@ -18,9 +18,11 @@
 */
 
 #include "Generator.h"
+#include <time.h>
 
 Generator::Generator()
 {
+    mRandomNumberGenerator.seed( std::time( 0 ) );
 }
 
 void Generator::setValue( unsigned int value )

@@ -92,20 +92,20 @@ void MainWindow::on_Simulator_finished()
 
 void MainWindow::on_Simulator_updateValues( const Simulator::SimulationData &data )
 {
-    ui->simTime->setText( QString::number( data.simulationTime ) + " s" );
+    ui->simTime->setText( QString::number( data.simulationTime ) );
     ui->valueN->setText( QString::number( data.N ) );
     ui->valueT->setText( QString::number( data.T ) );
     ui->valueNQ->setText( QString::number( data.NQ ) );
     ui->valueTQ->setText( QString::number( data.TQ ) );
     float f = 1.f / data.minimalSD;
     ui->standardDerivationN->setValue(
-                std::max( 0.f, 100.f - data.standardDerivationN * f ) );
+                std::max( 0.f, 101.f - data.standardDerivationN * f ) );
     ui->standardDerivationT->setValue(
-                std::max( 0.f, 100.f - data.standardDerivationT * f ) );
+                std::max( 0.f, 101.f - data.standardDerivationT * f ) );
     ui->standardDerivationNQ->setValue(
-                std::max( 0.f, 100.f - data.standardDerivationNQ * f ) );
+                std::max( 0.f, 101.f - data.standardDerivationNQ * f ) );
     ui->standardDerivationTQ->setValue(
-                std::max( 0.f, 100.f - data.standardDerivationTQ * f ) );
+                std::max( 0.f, 101.f - data.standardDerivationTQ * f ) );
     ui->standardDerivationN->setFormat(
                 QString::number( data.standardDerivationN ) );
     ui->standardDerivationT->setFormat(
