@@ -88,6 +88,11 @@ void MainWindow::on_Simulator_finished()
         mSimulator.reset();
     }
     ui->startSimulationButton->setText( tr( "Start Simulation" ) );
+
+    ui->standardDerivationN->setValue( 100 );
+    ui->standardDerivationT->setValue( 100 );
+    ui->standardDerivationNQ->setValue( 100 );
+    ui->standardDerivationTQ->setValue( 100 );
 }
 
 void MainWindow::on_Simulator_updateValues( const Simulator::SimulationData &data )

@@ -56,19 +56,28 @@ void Simulator::run()
     while( mRunning )
     {
         //Get next Event's time
-        mData.simulationTime = mEvents.begin()->first;
+        auto begin = mEvents.begin();
+        while( begin->first == 0 )
+        {
+            ++begin;
+        }
+        mData.simulationTime = begin->first;
 
         //Iterate over all events (they are sorted beacuse of std::multimap)
 
-        for( auto it : mEvents )
+        for( auto pair : mEvents )
         {
             //Handle only events at current timestamp
-            if( it.first != mData.simulationTime )
+            if( pair.first == 0 ) //START_SERVICE events
+            {
+                continue;
+            }
+            else if( pair.first != mData.simulationTime ) //later events
             {
                 break;
             }
 
-            switch( it.second.getType() )
+            switch( pair.second.getType() )
             {
             case Event::EET_INCOMING_EVENT:
             {
@@ -87,6 +96,15 @@ void Simulator::run()
                     //Increment queue usage
                     mData.curNQ++;
 
+                    //Uodate NQ
+                    mData.NQnum++;
+                    mData.NQsum += mData.curNQ;
+                    mData.NQsumSQ += mData.curNQ * mData.curNQ;
+                    mData.NQ = (float)mData.NQsum / (float)mData.NQnum;
+                    mData.varianceNQ = ( ( (float)mData.NQsumSQ / (float)mData.NQnum )
+                                        - mData.NQ * mData.NQ ) / (float)mData.NQnum;
+                    mData.standardDerivationNQ = std::sqrt( mData.varianceNQ );
+
                     //Create START_SERVICE event to save the creation time
                     //Use start time of 0 to indicate unknown starting time
                     mEvents.insert( Event::makeEventPair( Event::EET_START_SERVICE_EVENT,
@@ -97,6 +115,15 @@ void Simulator::run()
                     //Increment service unit ussage
                     mData.curN++;
 
+                    //Update N
+                    mData.Nnum++;
+                    mData.Nsum += mData.curN;
+                    mData.NsumSQ += mData.curN * mData.curN;
+                    mData.N = (float)mData.Nsum / (float)mData.Nnum;
+                    mData.varianceN = ( ( (float)mData.NsumSQ / (float)mData.Nnum )
+                                        - mData.N * mData.N ) / (float)mData.Nnum;
+                    mData.standardDerivationN = std::sqrt( mData.varianceN );
+
                     //As the request can be directly serviced, add its finished event
                     nextFinishedTime = mData.simulationTime
                             + mServiceDurationGenerator.generate();
@@ -106,9 +133,7 @@ void Simulator::run()
                 }
 
                 //Update quantity statistics
-                updateQuantityStatistics();
-
-                //mEvents.erase( it );
+                //updateQuantityStatistics();
 
                 break;
             }
@@ -118,16 +143,44 @@ void Simulator::run()
                 //Decrement current service unit usage
                 mData.curN--;
 
-                mData.curT = mData.simulationTime - it.second.getCreationTime();
+                mData.curT = mData.simulationTime - pair.second.getCreationTime();
+
+                //Update T
+                mData.Tnum++;
+                mData.Tsum += mData.curT;
+                mData.TsumSQ += mData.curT * mData.curT;
+                mData.T = (float)mData.Tsum / (float)mData.Tnum;
+                mData.varianceT = ( ( (float)mData.TsumSQ / (float)mData.Tnum )
+                                    - mData.T * mData.T ) / (float)mData.Tnum;
+                mData.standardDerivationT = std::sqrt( mData.varianceT );
 
                 //Check for queued request created at time 0
                 auto it2 = mEvents.find( 0 );
-                if( it2 != mEvents.end() && it.second.getType() == Event::EET_START_SERVICE_EVENT )
+                if( it2 != mEvents.end() && it2->second.getType() == Event::EET_START_SERVICE_EVENT )
                 {
                     //Decrement queue usage
                     mData.curNQ--;
+                    mData.curN++;
+
+                    //Uodate NQ
+                    mData.NQnum++;
+                    mData.NQsum += mData.curNQ;
+                    mData.NQsumSQ += mData.curNQ * mData.curNQ;
+                    mData.NQ = (float)mData.NQsum / (float)mData.NQnum;
+                    mData.varianceNQ = ( ( (float)mData.NQsumSQ / (float)mData.NQnum )
+                                        - mData.NQ * mData.NQ ) / (float)mData.NQnum;
+                    mData.standardDerivationNQ = std::sqrt( mData.varianceNQ );
 
                     mData.curTQ = mData.simulationTime - it2->second.getCreationTime();
+
+                    //Update TQ
+                    mData.TQnum++;
+                    mData.TQsum += mData.curTQ;
+                    mData.TQsumSQ += mData.curTQ * mData.curTQ;
+                    mData.TQ = (float)mData.TQsum / (float)mData.TQnum;
+                    mData.varianceTQ = ( ( (float)mData.TQsumSQ / (float)mData.TQnum )
+                                        - mData.TQ * mData.TQ ) / (float)mData.TQnum;
+                    mData.standardDerivationTQ = std::sqrt( mData.varianceTQ );
 
                     //As the request can now be serviced, add its finished event
                     nextFinishedTime = mData.simulationTime
@@ -140,13 +193,21 @@ void Simulator::run()
                     mEvents.erase( it2 );
                 }
 
+                //Update N
+                mData.Nnum++;
+                mData.Nsum += mData.curN;
+                mData.NsumSQ += mData.curN * mData.curN;
+                mData.N = (float)mData.Nsum / (float)mData.Nnum;
+                mData.varianceN = ( ( (float)mData.NsumSQ / (float)mData.Nnum )
+                                    - mData.N * mData.N ) / (float)mData.Nnum;
+                mData.standardDerivationN = std::sqrt( mData.varianceN );
+
+
                 //Update duration statistics
-                updateDurationStatistics();
+                //updateDurationStatistics();
 
                 //Update quantity statistics
-                updateQuantityStatistics();
-
-                //mEvents.erase( it );
+                //updateQuantityStatistics();
 
                 break;
             }
@@ -166,7 +227,6 @@ void Simulator::run()
                                     + mData.measureEventDistance,
                                     mData.simulationTime ) );
 
-                //mEvents.erase( it );
                 break;
             }
 
@@ -273,7 +333,6 @@ void Simulator::updateDurationStatistics()
                             - mData.TQ * mData.TQ ) / (float)mData.TQnum;
         mData.standardDerivationTQ = std::sqrt( mData.varianceTQ );
     }
-
     else
     {
         mData.TQ = 0;
@@ -294,8 +353,8 @@ Simulator::SimulationData::SimulationData()
       varianceTQ( std::numeric_limits<float>::max() ),
       standardDerivationN( std::numeric_limits<float>::max() ),
       standardDerivationT( std::numeric_limits<float>::max() ),
-      standardDerivationNQ( std::numeric_limits<float>::max() ),
-      standardDerivationTQ( std::numeric_limits<float>::max() ),
+      standardDerivationNQ( 0.f ),
+      standardDerivationTQ( 0.f ),
       minimalSD( 1.e-3f ),
       Nsum( 0 ), Tsum( 0 ), NQsum( 0 ), TQsum( 0 ),
       NsumSQ( 0 ), TsumSQ( 0 ), NQsumSQ( 0 ), TQsumSQ( 0 ),
