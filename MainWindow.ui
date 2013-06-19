@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>732</width>
-    <height>447</height>
+    <width>730</width>
+    <height>445</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -194,43 +194,10 @@
         <number>1</number>
        </property>
        <item>
-        <layout class="QFormLayout" name="formLayout">
-         <property name="fieldGrowthPolicy">
-          <enum>QFormLayout::ExpandingFieldsGrow</enum>
-         </property>
-         <property name="formAlignment">
-          <set>Qt::AlignRight|Qt::AlignTop|Qt::AlignTrailing</set>
-         </property>
+        <layout class="QGridLayout" name="gridLayout">
          <property name="topMargin">
           <number>0</number>
          </property>
-         <item row="1" column="0">
-          <widget class="QLabel" name="label_2">
-           <property name="text">
-            <string>T</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1">
-          <widget class="QLineEdit" name="valueT">
-           <property name="text">
-            <string>0</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-           <property name="readOnly">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="0">
-          <widget class="QLabel" name="label_3">
-           <property name="text">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;N&lt;span style=&quot; vertical-align:sub;&quot;&gt;Q&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-           </property>
-          </widget>
-         </item>
          <item row="2" column="1">
           <widget class="QLineEdit" name="valueNQ">
            <property name="text">
@@ -244,10 +211,65 @@
            </property>
           </widget>
          </item>
-         <item row="3" column="0">
+         <item row="3" column="0" alignment="Qt::AlignRight">
           <widget class="QLabel" name="label_4">
            <property name="text">
             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;T&lt;span style=&quot; vertical-align:sub;&quot;&gt;Q&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0" alignment="Qt::AlignRight">
+          <widget class="QLabel" name="label">
+           <property name="text">
+            <string>N</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="0" alignment="Qt::AlignRight">
+          <widget class="QLabel" name="label_11">
+           <property name="text">
+            <string>Standard derivation of N</string>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="0" alignment="Qt::AlignRight">
+          <widget class="QLabel" name="label_12">
+           <property name="text">
+            <string>Standard derivation of T</string>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="1">
+          <widget class="QProgressBar" name="standardDerivationT">
+           <property name="value">
+            <number>0</number>
+           </property>
+           <property name="format">
+            <string>0</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="1">
+          <widget class="QProgressBar" name="standardDerivationN">
+           <property name="value">
+            <number>0</number>
+           </property>
+           <property name="format">
+            <string>0</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0" alignment="Qt::AlignRight">
+          <widget class="QLabel" name="label_2">
+           <property name="text">
+            <string>T</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0" alignment="Qt::AlignRight">
+          <widget class="QLabel" name="label_3">
+           <property name="text">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;N&lt;span style=&quot; vertical-align:sub;&quot;&gt;Q&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
           </widget>
          </item>
@@ -264,7 +286,7 @@
            </property>
           </widget>
          </item>
-         <item row="4" column="0">
+         <item row="4" column="0" alignment="Qt::AlignRight">
           <widget class="QLabel" name="label_5">
            <property name="text">
             <string>Simulation time</string>
@@ -297,20 +319,10 @@
            </property>
           </widget>
          </item>
-         <item row="0" column="0">
-          <widget class="QLabel" name="label">
+         <item row="8" column="0" alignment="Qt::AlignRight">
+          <widget class="QLabel" name="label_14">
            <property name="text">
-            <string>N</string>
-           </property>
-          </widget>
-         </item>
-         <item row="5" column="1">
-          <widget class="QProgressBar" name="standardDerivationN">
-           <property name="value">
-            <number>0</number>
-           </property>
-           <property name="format">
-            <string>0</string>
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Standard derivation of T&lt;span style=&quot; vertical-align:sub;&quot;&gt;Q&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
           </widget>
          </item>
@@ -324,6 +336,26 @@
            </property>
           </widget>
          </item>
+         <item row="1" column="1">
+          <widget class="QLineEdit" name="valueT">
+           <property name="text">
+            <string>0</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="7" column="0" alignment="Qt::AlignRight">
+          <widget class="QLabel" name="label_13">
+           <property name="text">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Standard derivation of N&lt;span style=&quot; vertical-align:sub;&quot;&gt;Q&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+          </widget>
+         </item>
          <item row="7" column="1">
           <widget class="QProgressBar" name="standardDerivationNQ">
            <property name="value">
@@ -334,41 +366,55 @@
            </property>
           </widget>
          </item>
-         <item row="6" column="1">
-          <widget class="QProgressBar" name="standardDerivationT">
-           <property name="value">
-            <number>0</number>
+         <item row="5" column="2">
+          <widget class="QCheckBox" name="nCheck">
+           <property name="enabled">
+            <bool>false</bool>
            </property>
-           <property name="format">
-            <string>0</string>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
            </property>
           </widget>
          </item>
-         <item row="5" column="0">
-          <widget class="QLabel" name="label_11">
+         <item row="6" column="2">
+          <widget class="QCheckBox" name="tCheck">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="text">
-            <string>Standard derivation of N</string>
+            <string/>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
            </property>
           </widget>
          </item>
-         <item row="6" column="0">
-          <widget class="QLabel" name="label_12">
+         <item row="7" column="2">
+          <widget class="QCheckBox" name="nqCheck">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="text">
-            <string>Standard derivation of T</string>
+            <string/>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
            </property>
           </widget>
          </item>
-         <item row="7" column="0">
-          <widget class="QLabel" name="label_13">
-           <property name="text">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Standard derivation of N&lt;span style=&quot; vertical-align:sub;&quot;&gt;Q&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <item row="8" column="2">
+          <widget class="QCheckBox" name="tqCheck">
+           <property name="enabled">
+            <bool>false</bool>
            </property>
-          </widget>
-         </item>
-         <item row="8" column="0">
-          <widget class="QLabel" name="label_14">
            <property name="text">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Standard derivation of T&lt;span style=&quot; vertical-align:sub;&quot;&gt;Q&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            <string/>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
            </property>
           </widget>
          </item>
@@ -426,7 +472,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>732</width>
+     <width>730</width>
      <height>21</height>
     </rect>
    </property>

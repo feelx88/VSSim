@@ -93,15 +93,22 @@ void MainWindow::on_Simulator_finished()
     ui->standardDerivationT->setValue( 100 );
     ui->standardDerivationNQ->setValue( 100 );
     ui->standardDerivationTQ->setValue( 100 );
+
+    ui->nCheck->setChecked( true );
+    ui->tCheck->setChecked( true );
+    ui->nqCheck->setChecked( true );
+    ui->tqCheck->setChecked( true );
 }
 
 void MainWindow::on_Simulator_updateValues( const Simulator::SimulationData &data )
 {
     ui->simTime->setText( QString::number( data.simulationTime ) );
+
     ui->valueN->setText( QString::number( data.N ) );
     ui->valueT->setText( QString::number( data.T ) );
     ui->valueNQ->setText( QString::number( data.NQ ) );
     ui->valueTQ->setText( QString::number( data.TQ ) );
+
     float f = 1.f / data.minimalSD;
     ui->standardDerivationN->setValue(
                 std::max( 0.f, 101.f - data.standardDerivationN * f ) );
@@ -119,5 +126,11 @@ void MainWindow::on_Simulator_updateValues( const Simulator::SimulationData &dat
                 QString::number( data.standardDerivationNQ ) );
     ui->standardDerivationTQ->setFormat(
                 QString::number( data.standardDerivationTQ ) );
+
+    ui->nCheck->setChecked( data.standardDerivationN < data.minimalSD );
+    ui->tCheck->setChecked( data.standardDerivationT < data.minimalSD );
+    ui->nqCheck->setChecked( data.standardDerivationNQ < data.minimalSD );
+    ui->tqCheck->setChecked( data.standardDerivationTQ < data.minimalSD );
+
     ui->checkBox->setChecked( mSimulator ? !mSimulator->isRunning() : false );
 }
