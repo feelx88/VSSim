@@ -97,13 +97,6 @@ void Simulator::run()
                     mData.curNQ++;
 
                     //Uodate NQ
-                    /*mData.NQnum++;
-                    mData.NQsum += mData.curNQ;
-                    mData.NQsumSQ += mData.curNQ * mData.curNQ;
-                    mData.NQ = (float)mData.NQsum / (float)mData.NQnum;
-                    mData.varianceNQ = ( ( (float)mData.NQsumSQ / (float)mData.NQnum )
-                                        - mData.NQ * mData.NQ );
-                    mData.standardDerivationNQ = std::sqrt( mData.varianceNQ ) / (float)mData.NQnum;*/
                     calculateStatistics( mData.NQ, mData.curNQ, mData.NQsum, mData.NQsumSQ,
                                          mData.NQnum, mData.varianceNQ, mData.standardDerivationNQ );
 
@@ -118,13 +111,6 @@ void Simulator::run()
                     mData.curN++;
 
                     //Update N
-                    /*mData.Nnum++;
-                    mData.Nsum += mData.curN;
-                    mData.NsumSQ += mData.curN * mData.curN;
-                    mData.N = (float)mData.Nsum / (float)mData.Nnum;
-                    mData.varianceN = ( ( (float)mData.NsumSQ / (float)mData.Nnum )
-                                        - mData.N * mData.N ) / (float)mData.Nnum;
-                    mData.standardDerivationN = std::sqrt( mData.varianceN );*/
                     calculateStatistics( mData.N, mData.curN, mData.Nsum, mData.NsumSQ,
                                          mData.Nnum, mData.varianceN, mData.standardDerivationN );
 
@@ -135,9 +121,6 @@ void Simulator::run()
                                                           nextFinishedTime,
                                                           mData.simulationTime ) );
                 }
-
-                //Update quantity statistics
-                //updateQuantityStatistics();
 
                 break;
             }
@@ -150,13 +133,6 @@ void Simulator::run()
                 mData.curT = mData.simulationTime - pair.second.getCreationTime();
 
                 //Update T
-                /*mData.Tnum++;
-                mData.Tsum += mData.curT;
-                mData.TsumSQ += mData.curT * mData.curT;
-                mData.T = (float)mData.Tsum / (float)mData.Tnum;
-                mData.varianceT = ( ( (float)mData.TsumSQ / (float)mData.Tnum )
-                                    - mData.T * mData.T ) / (float)mData.Tnum;
-                mData.standardDerivationT = std::sqrt( mData.varianceT );*/
                 calculateStatistics( mData.T, mData.curT, mData.Tsum, mData.TsumSQ,
                                      mData.Tnum, mData.varianceT, mData.standardDerivationT );
 
@@ -169,26 +145,12 @@ void Simulator::run()
                     mData.curN++;
 
                     //Uodate NQ
-                    /*mData.NQnum++;
-                    mData.NQsum += mData.curNQ;
-                    mData.NQsumSQ += mData.curNQ * mData.curNQ;
-                    mData.NQ = (float)mData.NQsum / (float)mData.NQnum;
-                    mData.varianceNQ = ( ( (float)mData.NQsumSQ / (float)mData.NQnum )
-                                        - mData.NQ * mData.NQ ) / (float)mData.NQnum;
-                    mData.standardDerivationNQ = std::sqrt( mData.varianceNQ );*/
                     calculateStatistics( mData.NQ, mData.curNQ, mData.NQsum, mData.NQsumSQ,
                                          mData.NQnum, mData.varianceNQ, mData.standardDerivationNQ );
 
                     mData.curTQ = mData.simulationTime - it2->second.getCreationTime();
 
                     //Update TQ
-                    /*mData.TQnum++;
-                    mData.TQsum += mData.curTQ;
-                    mData.TQsumSQ += mData.curTQ * mData.curTQ;
-                    mData.TQ = (float)mData.TQsum / (float)mData.TQnum;
-                    mData.varianceTQ = ( ( (float)mData.TQsumSQ / (float)mData.TQnum )
-                                        - mData.TQ * mData.TQ ) / (float)mData.TQnum;
-                    mData.standardDerivationTQ = std::sqrt( mData.varianceTQ );*/
                     calculateStatistics( mData.TQ, mData.curTQ, mData.TQsum, mData.TQsumSQ,
                                          mData.TQnum, mData.varianceTQ, mData.standardDerivationTQ );
 
@@ -204,13 +166,6 @@ void Simulator::run()
                 }
 
                 //Update N
-                /*mData.Nnum++;
-                mData.Nsum += mData.curN;
-                mData.NsumSQ += mData.curN * mData.curN;
-                mData.N = (float)mData.Nsum / (float)mData.Nnum;
-                mData.varianceN = ( ( (float)mData.NsumSQ / (float)mData.Nnum )
-                                    - mData.N * mData.N ) / (float)mData.Nnum;
-                mData.standardDerivationN = std::sqrt( mData.varianceN );*/
                 calculateStatistics( mData.N, mData.curN, mData.Nsum, mData.NsumSQ,
                                      mData.Nnum, mData.varianceN, mData.standardDerivationN );
 
@@ -294,8 +249,8 @@ void Simulator::calculateStatistics( float &x, int &curX, size_t &sumX, size_t &
     sumX += curX;
     sumXSQ += curX * curX;
     x = (float)sumX / (float)numX;
-    vX = ( ( (float)x / (float)numX ) - x * x ) / (float)numX;
-    sdX = std::sqrt( vX );
+    vX = ( ( (float)x / (float)numX ) - ( x * x ) );
+    sdX = std::sqrt( vX ) / (float)numX;
 }
 
 Simulator::SimulationData::SimulationData()
