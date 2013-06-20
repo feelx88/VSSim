@@ -40,7 +40,7 @@ Simulator::~Simulator()
 
 void Simulator::run()
 {
-    unsigned long nextIncomingTime, nextFinishedTime;
+    size_t nextIncomingTime, nextFinishedTime;
 
     //Initialize simulation: generate EET_INCOMING event and first EET_MEASURE event
     nextIncomingTime = mIncomingRateGenerator.generate();

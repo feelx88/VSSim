@@ -26,7 +26,7 @@
 #include "Generator.h"
 #include "Event.h"
 
-typedef std::multimap<unsigned long, Event> EventMap;
+typedef std::multimap<size_t, Event> EventMap;
 
 class Simulator : public QThread
 {
@@ -35,16 +35,16 @@ public:
     struct SimulationData
     {
         SimulationData();
-        unsigned long simulationTime, nextEventTime;
+        size_t simulationTime, nextEventTime;
         int numServiceUnits;
         float N, T, NQ, TQ;
         float varianceN, varianceT, varianceNQ, varianceTQ;
         float standardDerivationN, standardDerivationT;
         float standardDerivationNQ, standardDerivationTQ;
         float minimalSD;
-        unsigned long Nsum, Tsum, NQsum, TQsum;
-        unsigned long NsumSQ, TsumSQ, NQsumSQ, TQsumSQ;
-        unsigned long Nnum, Tnum, NQnum, TQnum;
+        size_t Nsum, Tsum, NQsum, TQsum;
+        size_t NsumSQ, TsumSQ, NQsumSQ, TQsumSQ;
+        size_t Nnum, Tnum, NQnum, TQnum;
         int curN, curT, curNQ, curTQ;
         bool enableMeasureEvents;
         unsigned int measureEventDistance;

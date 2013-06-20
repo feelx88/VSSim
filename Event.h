@@ -21,6 +21,7 @@
 #define EVENT_H
 
 #include <utility>
+#include <cstddef>
 
 class Event
 {
@@ -33,20 +34,20 @@ public:
         EET_MEASURE_EVENT
     };
 
-    Event( E_EVENT_TYPE type, unsigned long startTime, unsigned long creationTime );
+    Event( E_EVENT_TYPE type, size_t startTime, size_t creationTime );
 
     E_EVENT_TYPE getType() const;
-    void setStartTime( unsigned long startTime );
-    unsigned long getStartTime() const;
-    unsigned long getCreationTime() const;
+    void setStartTime( size_t startTime );
+    size_t getStartTime() const;
+    size_t getCreationTime() const;
 
-    static std::pair<unsigned long, Event> makeEventPair( E_EVENT_TYPE type,
-                                                          unsigned long startTime,
-                                                          unsigned long creationTime );
+    static std::pair<size_t, Event> makeEventPair( E_EVENT_TYPE type,
+                                                          size_t startTime,
+                                                          size_t creationTime );
 
 private:
     E_EVENT_TYPE mType;
-    unsigned long mStartTime, mCreationTime;
+    size_t mStartTime, mCreationTime;
 };
 
 #endif // EVENT_H

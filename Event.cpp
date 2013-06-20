@@ -19,7 +19,7 @@
 
 #include "Event.h"
 
-Event::Event( E_EVENT_TYPE type, unsigned long startTime , unsigned long creationTime )
+Event::Event( E_EVENT_TYPE type, size_t startTime, size_t creationTime )
     : mType( type ),
       mStartTime( startTime ),
       mCreationTime( creationTime )
@@ -31,24 +31,24 @@ Event::E_EVENT_TYPE Event::getType() const
     return mType;
 }
 
-void Event::setStartTime(unsigned long startTime)
+void Event::setStartTime( size_t startTime )
 {
     mStartTime = startTime;
 }
 
-unsigned long Event::getStartTime() const
+size_t Event::getStartTime() const
 {
     return mStartTime;
 }
 
-unsigned long Event::getCreationTime() const
+size_t Event::getCreationTime() const
 {
     return mCreationTime;
 }
 
-std::pair<unsigned long, Event> Event::makeEventPair( Event::E_EVENT_TYPE type,
-                                                      unsigned long startTime,
-                                                      unsigned long creationTime )
+std::pair<size_t, Event> Event::makeEventPair( Event::E_EVENT_TYPE type,
+                                               size_t startTime,
+                                               size_t creationTime )
 {
     return std::make_pair( startTime, Event( type, startTime, creationTime ) );
 }
