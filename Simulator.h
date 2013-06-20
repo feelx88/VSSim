@@ -66,8 +66,9 @@ signals:
     void updateValues( const Simulator::SimulationData &data );
 
 private:
-    void updateQuantityStatistics();
-    void updateDurationStatistics();
+
+    void calculateStatistics( float &x, int &curX, size_t &sumX, size_t &sumXSQ,
+                              size_t &numX, float &vX, float &sdX );
 
     Generator mIncomingRateGenerator, mServiceDurationGenerator;
     bool mRunning, mFirstRun, mDeleteEventAtZero;
