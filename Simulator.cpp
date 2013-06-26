@@ -95,6 +95,10 @@ void Simulator::run()
                 //Update N
                 calculateStatistics( mData.N );
 
+                //Reset times
+                mData.T.cur = 0;
+                mData.TQ.cur = 0;
+
                 //If there is a finite number of service units, check if they are
                 //busy
                 if( mData.numServiceUnits > 0 && mData.N.cur == mData.numServiceUnits )
@@ -138,7 +142,8 @@ void Simulator::run()
 
                 //Check for queued request created at time 0
                 auto it = mEvents.find( 0 );
-                if( it != mEvents.end() && it->second.getType() == Event::EET_START_SERVICE_EVENT )
+                if( it != mEvents.end()
+                        && it->second.getType() == Event::EET_START_SERVICE_EVENT )
                 {
                     //Decrement queue usage
                     mData.NQ.cur--;
@@ -174,12 +179,10 @@ void Simulator::run()
             case Event::EET_MEASURE_EVENT:
             {
                 calculateStatistics( mData.N );
-
                 calculateStatistics( mData.T );
-
                 calculateStatistics( mData.NQ );
-
                 calculateStatistics( mData.TQ );
+
 
                 //Schedule new measure event
                 mEvents.insert( Event::makeEventPair(
