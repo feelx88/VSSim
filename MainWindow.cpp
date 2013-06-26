@@ -20,6 +20,7 @@
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
 #include <QMessageBox>
+#include <iostream>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -76,6 +77,32 @@ void MainWindow::on_startSimulationButton_clicked()
     else
     {
         on_Simulator_finished();
+    }
+
+    //Calculate theoretical results
+    if( numServiceUnits == 1
+            && mSimulator )
+    {
+
+        float A = 1.f / (float)incomingDistance;
+        float B = 1.f / (float)serviceDistance;
+
+        float N = A / ( B - A );
+        float T = 1.f / ( B - A );
+        float NQ = ( A / ( B - A ) ) - ( A / B );
+        float TQ = ( 1.f / ( B - A ) ) - ( 1.f / B );
+
+        std::stringstream str;
+        str << "Theoretical results: <br>";
+        str << "N = " << N << "<br>";
+        str << "T = " << T << "<br>";
+        str << "N<sub>Q</sub> = " << NQ << "<br>";
+        str << "T<sub>Q</sub> = " << TQ;
+
+        QMessageBox *msg = new QMessageBox( this );
+        msg->setModal( false );
+        msg->setText( str.str().c_str() );
+        msg->show();
     }
 }
 

@@ -29,7 +29,7 @@ void Generator::setValue( unsigned int value )
 {
     mValue = value;
     mDistribution.param(
-                boost::random::exponential_distribution<double>::param_type( 1.0 / mValue ) );
+                boost::random::exponential_distribution<double>::param_type( 1.0 / (double)mValue ) );
 }
 
 unsigned int Generator::generate()
