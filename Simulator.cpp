@@ -249,7 +249,7 @@ void Simulator::calculateStatistics( float &x, int &curX, size_t &sumX, size_t &
     sumX += curX;
     sumXSQ += curX * curX;
     x = (float)sumX / (float)numX;
-    vX = ( ( (float)x / (float)numX ) - ( x * x ) );
+    vX = ( ( (float)sumXSQ / (float)numX ) - ( x * x ) );
     sdX = std::sqrt( vX ) / (float)numX;
 }
 
