@@ -32,20 +32,21 @@ class Simulator : public QThread
 {
     Q_OBJECT
 public:
+    struct Var
+    {
+        Var();
+        float value, variance, standardDerivation;
+        size_t num, sum, sumSQ;
+        int cur;
+    };
+
     struct SimulationData
     {
         SimulationData();
         size_t simulationTime, nextEventTime;
         int numServiceUnits;
-        float N, T, NQ, TQ;
-        float varianceN, varianceT, varianceNQ, varianceTQ;
-        float standardDerivationN, standardDerivationT;
-        float standardDerivationNQ, standardDerivationTQ;
         float minimalSD;
-        size_t Nsum, Tsum, NQsum, TQsum;
-        size_t NsumSQ, TsumSQ, NQsumSQ, TQsumSQ;
-        size_t Nnum, Tnum, NQnum, TQnum;
-        int curN, curT, curNQ, curTQ;
+        Var N, T, NQ, TQ;
         bool enableMeasureEvents;
         unsigned int measureEventDistance;
     };
@@ -66,9 +67,7 @@ signals:
     void updateValues( const Simulator::SimulationData &data );
 
 private:
-
-    void calculateStatistics( float &x, int &curX, size_t &sumX, size_t &sumXSQ,
-                              size_t &numX, float &vX, float &sdX );
+    void calculateStatistics( Var &var );
 
     Generator mIncomingRateGenerator, mServiceDurationGenerator;
     bool mRunning, mFirstRun, mDeleteEventAtZero;
