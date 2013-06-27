@@ -203,7 +203,7 @@ void Simulator::run()
         mEvents.erase( mData.simulationTime );
 
         //Check if stop criteria are met
-        if( mData.simulationTime > mData.measureEventDistance * 10
+        if( mData.N.value > 0.f
                 && mData.N.standardDerivation <= mData.minimalSD
                 && mData.T.standardDerivation <= mData.minimalSD )
         {
